@@ -1,0 +1,33 @@
+name: Build MameLLM (macOS app)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'MameLLM/**'
+      - '.github/workflows/mamellm.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Test
+        working-directory: MameLLM
+        run: go vet ./... && go test ./...
+      - name: Build
+        working-directory: MameLLM
+        run: |
+          ./build.sh
+          cd dist
+          for d in MameLLM-macos-*; do zip -qry "$d.zip" "$d"; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MameLLM-macos
+          path: MameLLM/dist/*.zip

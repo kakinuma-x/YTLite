@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MameLLM</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">🫘 MameLLM <small id="ver"></small></div>
+  <nav id="tabs">
+    <button data-tab="chat" class="on">チャット</button>
+    <button data-tab="models">モデル</button>
+    <button data-tab="sources">ダウンロード元</button>
+    <button data-tab="settings">設定</button>
+  </nav>
+  <div id="sysline" class="muted"></div>
+</header>
+
+<main>
+<section id="tab-chat" class="tab on">
+  <div class="chatbar">
+    <select id="chat-model" aria-label="モデル"></select>
+    <span id="engine-pill" class="pill">停止中</span>
+    <span class="grow"></span>
+    <button id="unload" class="ghost" title="モデルをメモリから解放">メモリ解放</button>
+    <button id="newchat" class="ghost">新しい会話</button>
+  </div>
+  <div id="chat-empty" class="empty"></div>
+  <div id="messages"></div>
+  <form id="composer">
+    <textarea id="input" rows="2" placeholder="メッセージを入力(Enterで送信・Shift+Enterで改行)"></textarea>
+    <button id="send" type="submit">送信</button>
+  </form>
+</section>
+
+<section id="tab-models" class="tab">
+  <div id="runtime-box"></div>
+  <div id="jobs"></div>
+  <div class="row filters" id="filters">
+    <button data-f="fit" class="chip on">このMacで動く</button>
+    <button data-f="all" class="chip">すべて</button>
+    <button data-f="ja" class="chip">日本語</button>
+    <button data-f="installed" class="chip">インストール済み</button>
+  </div>
+  <div id="model-list"></div>
+
+  <h2>モデルを追加</h2>
+  <div class="row filters" id="addtabs">
+    <button data-a="search" class="chip on">Hugging Faceを検索</button>
+    <button data-a="hf" class="chip">リポジトリ指定</button>
+    <button data-a="ollama" class="chip">Ollama名</button>
+    <button data-a="url" class="chip">直接URL</button>
+    <button data-a="local" class="chip">手元のGGUF</button>
+  </div>
+  <div class="card">
+    <form class="add on" data-a="search">
+      <div class="row"><input name="q" placeholder="例: gemma 3 1b / japanese / qwen" class="grow"><button>検索</button></div>
+      <p class="muted">GGUF形式のモデルを検索します。リポジトリを選ぶとファイル(量子化)一覧が出ます。迷ったら Q4_K_M が標準です。</p>
+      <div id="search-results"></div>
+    </form>
+    <form class="add" data-a="hf">
+      <div class="row"><input name="repo" placeholder="所有者/リポジトリ (例: unsloth/gemma-3-1b-it-GGUF)" class="grow" required>
+      <input name="file" placeholder="ファイル名 (例: gemma-3-1b-it-Q4_K_M.gguf)" class="grow" required></div>
+      <div class="row"><input name="name" placeholder="表示名(省略可)" class="grow"><button>追加してダウンロード</button></div>
+      <p class="muted">Hugging Face互換のすべてのダウンロード元(ミラー含む)とModelScopeから順に取得を試みます。</p>
+    </form>
+    <form class="add" data-a="ollama">
+      <div class="row"><input name="ref" placeholder="例: gemma3:1b / qwen2.5:0.5b / ユーザー名/モデル:タグ" class="grow" required>
+      <input name="name" placeholder="表示名(省略可)"><button>追加してダウンロード</button></div>
+      <p class="muted">OllamaライブラリのGGUF本体を直接取得します(Ollama本体は不要)。</p>
+    </form>
+    <form class="add" data-a="url">
+      <div class="row"><input name="url" type="url" placeholder="https://…/model.gguf" class="grow" required>
+      <input name="name" placeholder="表示名(省略可)"><button>追加してダウンロード</button></div>
+      <p class="muted">GGUFファイルへの直接リンクならどのサイトでも登録できます。</p>
+    </form>
+    <form class="add" data-a="local">
+      <div class="row"><input name="path" placeholder="/Users/あなた/Downloads/model.gguf" class="grow" required>
+      <input name="name" placeholder="表示名(省略可)"><button>登録</button></div>
+      <p class="muted">すでに手元にあるGGUFをコピーせずにそのまま使います。</p>
+    </form>
+  </div>
+</section>
+
+<section id="tab-sources" class="tab">
+  <p class="muted">上にあるものから順に試し、失敗したら自動で次のダウンロード元に切り替えます。SHA-256が分かっているモデルは取得後に必ず照合するので、非公式ミラー経由でも改変されたファイルは採用されません。</p>
+  <h2>モデルのダウンロード元</h2>
+  <div id="src-models"></div>
+  <h2>ランタイム(llama.cpp)の配布元</h2>
+  <div id="src-runtime"></div>
+  <h2>ダウンロード元を追加</h2>
+  <form id="src-add" class="card">
+    <div class="row">
+      <input name="name" placeholder="名前 (例: 社内ミラー)" required>
+      <select name="kind">
+        <option value="hf">Hugging Face互換ミラー</option>
+        <option value="template">URLテンプレート</option>
+        <option value="ollama">Ollama互換レジストリ</option>
+        <option value="modelscope">ModelScope互換</option>
+        <option value="github-mirror">GitHubプロキシ(ランタイム用)</option>
+      </select>
+      <input name="base" placeholder="https://example.com" class="grow" required>
+      <button>追加</button>
+    </div>
+    <p class="muted" id="src-hint"></p>
+  </form>
+</section>
+
+<section id="tab-settings" class="tab">
+  <form id="settings" class="card form">
+    <label>コンテキスト長(トークン)<input name="context_size" type="number" min="0" step="256"><small id="h-ctx"></small></label>
+    <label>スレッド数<input name="threads" type="number" min="0"><small id="h-thr"></small></label>
+    <label>GPUレイヤー数<input name="gpu_layers" type="number" min="-1"><small id="h-gpu"></small></label>
+    <label>自動メモリ解放(分)<input name="idle_minutes" type="number" min="0"><small>この時間使わないとモデルをメモリから降ろします。0で無効。</small></label>
+    <label>最大生成トークン数<input name="max_tokens" type="number" min="0"><small>1回の返答の上限。</small></label>
+    <label>Temperature<input name="temperature" type="number" min="0" max="2" step="0.05"><small>高いほど多様、低いほど堅実。</small></label>
+    <label class="wide">システムプロンプト<textarea name="system_prompt" rows="2" placeholder="例: あなたは親切な日本語アシスタントです。"></textarea></label>
+    <label class="wide">llama-server のパス(任意)<input name="runtime_path" placeholder="空欄なら自動(このアプリが入れたもの → Homebrew等)"></label>
+    <label class="wide">llama-server 追加引数(任意)<input name="extra_args" placeholder="例: --no-mmap"></label>
+    <label class="wide">Hugging Face トークン(任意)<input name="hf_token" type="password" autocomplete="off" placeholder="利用規約の同意が必要なモデル用。公式Hugging Faceにのみ送信されます"><small id="h-tok"></small></label>
+    <div class="row wide"><button>保存</button><span id="saved" class="muted"></span></div>
+  </form>
+  <p class="muted" id="datadir"></p>
+  <div class="row"><button id="quit" class="danger">MameLLMを終了</button><span class="muted">モデルを解放してアプリを止めます。</span></div>
+</section>
+</main>
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

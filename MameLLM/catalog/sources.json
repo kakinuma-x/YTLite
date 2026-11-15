@@ -1,0 +1,27 @@
+[
+ {"id": "huggingface", "name": "Hugging Face (公式)", "kind": "hf", "base": "https://huggingface.co", "search": true,
+  "note": "GGUFモデルの本家。最も種類が多い。"},
+ {"id": "hf-mirror", "name": "HF-Mirror (hf-mirror.com)", "kind": "hf", "base": "https://hf-mirror.com", "search": true,
+  "note": "Hugging Faceの有名ミラー。本家に繋がりにくい回線向け。"},
+ {"id": "modelscope", "name": "ModelScope (魔搭)", "kind": "modelscope", "base": "https://modelscope.cn",
+  "note": "Alibaba系のモデルハブ。主要なGGUFリポジトリが同名で公開されている。"},
+ {"id": "ollama", "name": "Ollama Registry", "kind": "ollama", "base": "https://registry.ollama.ai",
+  "note": "Ollamaライブラリのモデル本体(GGUF)を直接取得。Ollama本体のインストールは不要。"},
+ {"id": "ollama-com", "name": "Ollama Registry (ollama.com)", "kind": "ollama", "base": "https://ollama.com",
+  "note": "Ollamaレジストリの別ホスト名。"},
+ {"id": "ollama-daocloud", "name": "Ollama ミラー (DaoCloud)", "kind": "ollama", "base": "https://ollama.m.daocloud.io", "unofficial": true,
+  "note": "DaoCloudによるOllamaレジストリの非公式ミラー。"},
+ {"id": "alpha-hf-mirror", "name": "HF-Mirror 予備 (alpha.hf-mirror.com)", "kind": "hf", "base": "https://alpha.hf-mirror.com", "search": true, "unofficial": true,
+  "note": "HF-Mirrorの予備ドメイン。"},
+ {"id": "sufy", "name": "Sufy HF CDN", "kind": "hf", "base": "https://hf-cdn.sufy.com", "search": true, "unofficial": true,
+  "note": "Hugging Face互換の非公式CDNミラー。"},
+ {"id": "direct", "name": "直接URL (GPT4All CDN・個別URL)", "kind": "url", "base": "",
+  "note": "モデルごとに登録された直接ダウンロードURL。URLを指定して追加したモデルはここから取得する。"},
+
+ {"id": "github", "name": "GitHub Releases (公式)", "kind": "github", "base": "https://github.com", "runtime": true,
+  "note": "llama.cpp公式ビルドの配布元。"},
+ {"id": "gh-proxy", "default_off": true, "name": "gh-proxy.com", "kind": "github-mirror", "base": "https://gh-proxy.com/", "runtime": true, "unofficial": true,
+  "note": "GitHubの非公式プロキシ。GitHubに繋がりにくい回線向け。実行ファイルを第三者経由で受け取るため既定では無効。"},
+ {"id": "ghproxy-net", "default_off": true, "name": "ghproxy.net", "kind": "github-mirror", "base": "https://ghproxy.net/", "runtime": true, "unofficial": true,
+  "note": "GitHubの非公式プロキシ。既定では無効。"}
+]
