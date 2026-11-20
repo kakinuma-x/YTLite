@@ -105,6 +105,9 @@ struct TransportBar: View {
     var body: some View {
         let s = store
         let b = max(0, s.pos), sec = b * 60 / s.project.bpm
+        let barNo = Int(b / 4) + 1, beatNo = Int(b.truncatingRemainder(dividingBy: 4)) + 1
+        let sixteenth = Int(b.truncatingRemainder(dividingBy: 1) * 4 + 1e-6) + 1
+        let position = "\(barNo).\(beatNo).\(sixteenth)"
         HStack(spacing: 6) {
             icon("line.3.horizontal", "メニュー") { sheet = .menu }
             icon("backward.end.fill", "先頭へ") { s.goHome() }
@@ -114,7 +117,7 @@ struct TransportBar: View {
             icon("metronome", "メトロノーム", on: s.metro) { s.toggleMetro() }
             Spacer(minLength: 2)
             VStack(spacing: 2) {
-                Text("\(Int(b / 4) + 1).\(Int(b.truncatingRemainder(dividingBy: 4)) + 1).\(Int(b.truncatingRemainder(dividingBy: 1) * 4 + 1e-6) + 1)")
+                Text(position)
                     .font(.system(size: 17, weight: .semibold, design: .monospaced)).monospacedDigit()
                 Text(String(format: "%d:%04.1f", Int(sec / 60), sec.truncatingRemainder(dividingBy: 60)))
                     .font(.system(size: 10, design: .monospaced)).foregroundStyle(Theme.dim)
