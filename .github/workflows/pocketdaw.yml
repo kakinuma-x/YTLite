@@ -8,25 +8,38 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pocketdaw-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  # The audio core only needs Foundation, so it is tested on Linux.
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test audio core
+        working-directory: PocketDAW
+        run: swift --version && swift test 2>&1 | tail -60
+
+  # Needs a macOS runner (Xcode). Builds an unsigned IPA.
+  app:
     runs-on: macos-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: PocketDAW
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
-        run: xcodebuild -version && swift --version
-      - name: Test audio core
-        run: swift test 2>&1 | tail -40
+        run: xcodebuild -version
       - name: Build app (unsigned)
         run: |
           set -o pipefail
           xcodebuild -project PocketDAW.xcodeproj -scheme PocketDAW -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build \
-            2>&1 | grep -E "error|warning: unre|BUILD|\*\*" | head -80
+            2>&1 | grep -E "error|BUILD|\*\*" | head -80
       - name: Package unsigned IPA
         run: |
           mkdir -p Payload
