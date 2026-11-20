@@ -17,8 +17,9 @@ iPhone Duo の外側 5.4 インチ画面でも、開いた 7.6 インチ画面�
 `PocketDAW.xcodeproj` を Xcode 16 以降で開き、Signing & Capabilities で自分の Team を選んで実機に Run します。
 外部ライブラリはありません。
 
-GitHub Actions（`.github/workflows/pocketdaw.yml`）は音声コアのテストと未署名 IPA のビルドを行い、
-IPA を成果物 `PocketDAW-unsigned-ipa` として残します。
+GitHub Actions（`.github/workflows/pocketdaw.yml`）は push のたびに音声コアのテストを Linux で実行します。
+未署名 IPA のビルドは macOS ランナーが必要なため、Actions 画面から手動実行（Run workflow）したときだけ動き、
+成果物 `PocketDAW-unsigned-ipa` を残します。
 
 ## 構成
 

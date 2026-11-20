@@ -20,10 +20,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test audio core
         working-directory: PocketDAW
-        run: swift --version && swift test 2>&1 | tail -60
+        run: |
+          set -o pipefail
+          swift --version && swift test 2>&1 | tail -60
 
-  # Needs a macOS runner (Xcode). Builds an unsigned IPA.
+  # Needs a macOS runner (Xcode), so it only runs when started by hand. Builds an unsigned IPA.
   app:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: macos-latest
     timeout-minutes: 30
     defaults:
